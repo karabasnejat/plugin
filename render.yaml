@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: nejo-shop-mcp
+    name: akbank-credit-offers-mcp
     runtime: node
     plan: free
     buildCommand: npm ci && npm run build

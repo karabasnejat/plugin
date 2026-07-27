@@ -1,12 +1,12 @@
-# Product Catalog MCP
+# Akbank Credit Offers MCP
 
-This is a TypeScript Model Context Protocol server that exposes the product data in `data.md`.
+This is a TypeScript Model Context Protocol server that exposes Akbank credit offer data in `data.md`.
 
 ## Tools
 
-- `list_products`: list all products, with optional category, price, stock, and sort filters.
-- `get_product`: get one product by id.
-- `search_products`: search by id, name, or category.
+- `list_credit_offers`: list Akbank credit offers, with optional loan type, amount, term, channel, and sort filters.
+- `get_credit_offer`: get one credit offer by id.
+- `search_credit_offers`: search by id, title, loan type, application channel, requirements, or notes.
 
 ## Local setup
 
@@ -47,6 +47,6 @@ For hosting, deploy the project to a Node.js host, set the `PORT` environment va
 https://your-domain.example/mcp
 ```
 
-If your GPT integration expects classic OpenAPI Actions instead of MCP, add a small REST wrapper and OpenAPI schema around the same product catalog functions.
+If your GPT integration expects classic OpenAPI Actions instead of MCP, add a small REST wrapper and OpenAPI schema around the same credit offer functions.
 
 See [DEPLOY.md](DEPLOY.md) for Render, Docker, and ChatGPT connection steps.

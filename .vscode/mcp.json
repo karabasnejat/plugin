@@ -1,6 +1,6 @@
 {
   "servers": {
-    "product-catalog-mcp": {
+    "akbank-credit-offers-mcp": {
       "type": "stdio",
       "command": "npm",
       "args": ["run", "dev"]

@@ -1,26 +1,26 @@
-# Nejo Shop Ürün Kataloğu MCP
+# Akbank Kredi Fırsatları MCP
 
 ## Kısa açıklama
 
-Nejo Shop ürün kataloğundaki ürünleri listelemek, aramak ve ürün detaylarını getirmek için kullanılan MCP eklentisi.
+Akbank kredi fırsatlarını listelemek, aramak ve kredi detaylarını getirmek için kullanılan MCP eklentisi.
 
 ## Plugin açıklaması
 
-Bu MCP eklentisi, `data.md` dosyasında tutulan ürün kataloğunu GPT ile kullanılabilir hale getirir. Ürünleri kategori, fiyat, stok durumu ve puana göre listeleyebilir; ürün adına, kategoriye veya ürün koduna göre arama yapabilir; tek bir ürünün detaylarını ürün kimliği ile getirebilir.
+Bu MCP eklentisi, `data.md` dosyasında tutulan Akbank kredi fırsatlarını GPT ile kullanılabilir hale getirir. İhtiyaç kredisi, taşıt kredisi ve konut kredisi gibi fırsatları listeleyebilir; kredi tipine, başvuru kanalına, tutar aralığına ve vade aralığına göre filtreleyebilir; tek bir kredi fırsatının detaylarını kimliği ile getirebilir.
 
 ## Kullanım alanları
 
-- Ürün kataloğunu hızlıca sorgulama
-- Belirli bir ürünün fiyat, stok ve puan bilgisini görüntüleme
-- Kategoriye göre ürünleri filtreleme
-- GPT içinde ürün önerisi veya katalog yanıtları üretme
+- Akbank kredi fırsatlarını hızlıca sorgulama
+- Kredi tipi, tutar ve vade aralığına göre filtreleme
+- Başvuru kanallarını ve temel şartları görüntüleme
+- GPT içinde kredi fırsatı karşılaştırması veya yönlendirme yanıtları üretme
 
 ## Kullanılabilir araçlar
 
-- `list_products`: ürünleri listeler ve isteğe bağlı filtreler uygular.
-- `get_product`: ürün kimliğine göre tek ürün detayını getirir.
-- `search_products`: ürün adı, kategori veya ürün kimliği ile arama yapar.
+- `list_credit_offers`: kredi fırsatlarını listeler ve isteğe bağlı filtreler uygular.
+- `get_credit_offer`: kredi fırsatı kimliğine göre tek fırsat detayını getirir.
+- `search_credit_offers`: kredi adı, kredi tipi, başvuru kanalı, şartlar veya kimlik ile arama yapar.
 
 ## Form için önerilen açıklama
 
-Nejo Shop ürün kataloğunu GPT'ye bağlayan MCP eklentisi. Ürünleri listeleme, arama, kategori/fiyat/stok filtreleme ve ürün detaylarını getirme işlemlerini sağlar.
+Akbank kredi fırsatlarını GPT'ye bağlayan MCP eklentisi. Kredi fırsatlarını listeleme, arama, tutar/vade filtreleme, başvuru kanallarını ve temel koşulları görüntüleme işlemlerini sağlar.

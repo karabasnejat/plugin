@@ -5,137 +5,173 @@ import { fileURLToPath } from "node:url";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 
-const productSchema = z.object({
+const creditOfferSchema = z.object({
   id: z.string(),
-  name: z.string(),
-  category: z.string(),
-  price: z.number(),
-  stock: z.number(),
-  rating: z.number(),
+  bank: z.string(),
+  title: z.string(),
+  loanType: z.string(),
+  minAmount: z.number().nullable(),
+  maxAmount: z.number().nullable(),
+  minTermMonths: z.number().nullable(),
+  maxTermMonths: z.number().nullable(),
+  interestRate: z.number().nullable(),
+  annualCostRate: z.number().nullable(),
+  fees: z.array(z.string()),
+  requirements: z.array(z.string()),
+  applicationChannels: z.array(z.string()),
+  validUntil: z.string().nullable(),
+  url: z.string().url(),
+  notes: z.string(),
 });
 
-const productsSchema = z.array(productSchema);
+const creditOffersSchema = z.array(creditOfferSchema);
 
-type Product = z.infer<typeof productSchema>;
+type CreditOffer = z.infer<typeof creditOfferSchema>;
 
 const dataPath = resolve(dirname(fileURLToPath(import.meta.url)), "..", "data.md");
 
-async function loadProducts(): Promise<Product[]> {
+async function loadCreditOffers(): Promise<CreditOffer[]> {
   const rawData = await readFile(dataPath, "utf8");
-  return productsSchema.parse(JSON.parse(rawData));
+  return creditOffersSchema.parse(JSON.parse(rawData));
 }
 
 function toJsonText(data: unknown): string {
   return JSON.stringify(data, null, 2);
 }
 
+function normalizeText(value: string): string {
+  return value.toLocaleLowerCase("tr-TR");
+}
+
 export function createCatalogServer(): McpServer {
   const server = new McpServer({
-    name: "product-catalog-mcp",
+    name: "akbank-credit-offers-mcp",
     version: "0.1.0",
   });
 
   server.registerTool(
-    "list_products",
+    "list_credit_offers",
     {
-      title: "List products",
-      description: "List products from the local product catalog with optional filters.",
+      title: "List credit offers",
+      description: "List Akbank credit offers with optional loan type, amount, term, channel, and sorting filters.",
       inputSchema: {
-        category: z.string().optional().describe("Filter by category, for example Elektronik."),
-        minPrice: z.number().optional().describe("Only include products at or above this price."),
-        maxPrice: z.number().optional().describe("Only include products at or below this price."),
-        inStockOnly: z.boolean().optional().describe("Only include products with stock greater than 0."),
-        sortBy: z.enum(["price", "rating", "stock", "name"]).optional().describe("Sort the result by a product field."),
+        loanType: z.string().optional().describe("Filter by loan type, for example İhtiyaç Kredisi."),
+        minAmount: z.number().optional().describe("Only include offers whose maximum amount can cover this amount."),
+        maxAmount: z.number().optional().describe("Only include offers whose minimum amount is at or below this amount."),
+        minTermMonths: z.number().optional().describe("Only include offers whose maximum term can cover this term."),
+        maxTermMonths: z.number().optional().describe("Only include offers whose minimum term is at or below this term."),
+        channel: z.string().optional().describe("Filter by application channel, for example Akbank Mobil."),
+        sortBy: z.enum(["title", "loanType", "maxAmount", "maxTermMonths"]).optional().describe("Sort the result by an offer field."),
       },
     },
-    async ({ category, minPrice, maxPrice, inStockOnly, sortBy }) => {
-      let products = await loadProducts();
+    async ({ loanType, minAmount, maxAmount, minTermMonths, maxTermMonths, channel, sortBy }) => {
+      let offers = await loadCreditOffers();
 
-      if (category) {
-        products = products.filter((product) => product.category.toLocaleLowerCase("tr-TR") === category.toLocaleLowerCase("tr-TR"));
+      if (loanType) {
+        offers = offers.filter((offer) => normalizeText(offer.loanType) === normalizeText(loanType));
       }
 
-      if (minPrice !== undefined) {
-        products = products.filter((product) => product.price >= minPrice);
+      if (minAmount !== undefined) {
+        offers = offers.filter((offer) => offer.maxAmount === null || offer.maxAmount >= minAmount);
       }
 
-      if (maxPrice !== undefined) {
-        products = products.filter((product) => product.price <= maxPrice);
+      if (maxAmount !== undefined) {
+        offers = offers.filter((offer) => offer.minAmount === null || offer.minAmount <= maxAmount);
       }
 
-      if (inStockOnly) {
-        products = products.filter((product) => product.stock > 0);
+      if (minTermMonths !== undefined) {
+        offers = offers.filter((offer) => offer.maxTermMonths === null || offer.maxTermMonths >= minTermMonths);
+      }
+
+      if (maxTermMonths !== undefined) {
+        offers = offers.filter((offer) => offer.minTermMonths === null || offer.minTermMonths <= maxTermMonths);
+      }
+
+      if (channel) {
+        offers = offers.filter((offer) => offer.applicationChannels.some((applicationChannel) => normalizeText(applicationChannel).includes(normalizeText(channel))));
       }
 
       if (sortBy) {
-        products = [...products].sort((left, right) => {
-          if (sortBy === "name") {
-            return left.name.localeCompare(right.name, "tr-TR");
+        offers = [...offers].sort((left, right) => {
+          if (sortBy === "title" || sortBy === "loanType") {
+            return left[sortBy].localeCompare(right[sortBy], "tr-TR");
           }
 
-          return right[sortBy] - left[sortBy];
+          return (right[sortBy] ?? 0) - (left[sortBy] ?? 0);
         });
       }
 
       return {
-        content: [{ type: "text", text: toJsonText(products) }],
+        content: [{ type: "text", text: toJsonText(offers) }],
       };
     },
   );
 
   server.registerTool(
-    "get_product",
+    "get_credit_offer",
     {
-      title: "Get product",
-      description: "Get a single product by product id.",
+      title: "Get credit offer",
+      description: "Get a single Akbank credit offer by id.",
       inputSchema: {
-        id: z.string().describe("Product id, for example PRD-001."),
+        id: z.string().describe("Credit offer id, for example AKB-KRD-001."),
       },
     },
     async ({ id }) => {
-      const products = await loadProducts();
-      const product = products.find((item) => item.id.toLocaleLowerCase("tr-TR") === id.toLocaleLowerCase("tr-TR"));
+      const offers = await loadCreditOffers();
+      const offer = offers.find((item) => normalizeText(item.id) === normalizeText(id));
 
-      if (!product) {
+      if (!offer) {
         return {
           isError: true,
-          content: [{ type: "text", text: `Product not found: ${id}` }],
+          content: [{ type: "text", text: `Credit offer not found: ${id}` }],
         };
       }
 
       return {
-        content: [{ type: "text", text: toJsonText(product) }],
+        content: [{ type: "text", text: toJsonText(offer) }],
       };
     },
   );
 
   server.registerTool(
-    "search_products",
+    "search_credit_offers",
     {
-      title: "Search products",
-      description: "Search products by name, category, or id.",
+      title: "Search credit offers",
+      description: "Search Akbank credit offers by title, loan type, channel, requirement, note, or id.",
       inputSchema: {
         query: z.string().describe("Search text."),
       },
     },
     async ({ query }) => {
-      const normalizedQuery = query.toLocaleLowerCase("tr-TR");
-      const products = (await loadProducts()).filter((product) =>
-        [product.id, product.name, product.category].some((value) => value.toLocaleLowerCase("tr-TR").includes(normalizedQuery)),
-      );
+      const normalizedQuery = normalizeText(query);
+      const offers = (await loadCreditOffers()).filter((offer) => {
+        const searchableValues = [
+          offer.id,
+          offer.bank,
+          offer.title,
+          offer.loanType,
+          offer.notes,
+          offer.url,
+          ...offer.fees,
+          ...offer.requirements,
+          ...offer.applicationChannels,
+        ];
+
+        return searchableValues.some((value) => normalizeText(value).includes(normalizedQuery));
+      });
 
       return {
-        content: [{ type: "text", text: toJsonText(products) }],
+        content: [{ type: "text", text: toJsonText(offers) }],
       };
     },
   );
 
   server.registerResource(
-    "products",
-    "products://all",
+    "credit_offers",
+    "credit-offers://all",
     {
-      title: "Products",
-      description: "All products loaded from data.md.",
+      title: "Akbank credit offers",
+      description: "All Akbank credit offers loaded from data.md.",
       mimeType: "application/json",
     },
     async (uri) => ({
@@ -143,7 +179,7 @@ export function createCatalogServer(): McpServer {
         {
           uri: uri.href,
           mimeType: "application/json",
-          text: toJsonText(await loadProducts()),
+          text: toJsonText(await loadCreditOffers()),
         },
       ],
     }),

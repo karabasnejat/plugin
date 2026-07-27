@@ -1,7 +1,7 @@
 {
-  "name": "product-catalog-mcp",
+  "name": "akbank-credit-offers-mcp",
   "version": "0.1.0",
-  "description": "MCP server that exposes product catalog data from data.md.",
+  "description": "MCP server that exposes Akbank credit offer data from data.md.",
   "type": "module",
   "private": true,
   "engines": {

@@ -10,7 +10,7 @@ const app = express();
 app.use(express.json());
 
 app.get("/health", (_request, response) => {
-  response.json({ ok: true, name: "product-catalog-mcp" });
+  response.json({ ok: true, name: "akbank-credit-offers-mcp" });
 });
 
 app.post("/mcp", async (request, response) => {
@@ -42,5 +42,5 @@ app.post("/mcp", async (request, response) => {
 });
 
 app.listen(port, () => {
-  console.log(`Product catalog MCP HTTP server listening on http://localhost:${port}/mcp`);
+  console.log(`Akbank credit offers MCP HTTP server listening on http://localhost:${port}/mcp`);
 });

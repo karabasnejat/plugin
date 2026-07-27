@@ -20,8 +20,8 @@ https://RENDER-SERVICE-ADIN.onrender.com/mcp
 ## Docker ile deploy
 
 ```bash
-docker build -t nejo-shop-mcp .
-docker run --rm -p 3000:3000 nejo-shop-mcp
+docker build -t akbank-credit-offers-mcp .
+docker run --rm -p 3000:3000 akbank-credit-offers-mcp
 ```
 
 MCP URL:
